@@ -1,0 +1,94 @@
+import os, socket, sys, threading, time
+
+sys.path.append("../lib")
+import params
+from threading import Thread
+from encapFramedSock import EncapFramedSock
+
+PATH = "./Receive"
+HOST = "127.0.0.1"
+
+switchesVarDefaults = (
+    (('1', '--listenPort'), 'listenPort', 50001),
+    (('?', '--usage'), 'usage', False),
+    (('d', '--debug'), 'debug', False),
+)
+
+parameterMap = params.parseParams(switchesVarDefaults)
+listenPort = parameterMap['listenPort']
+
+if parameterMap['usage']:
+    params.usage()
+
+bindAddress = (HOST, listenPort)
+
+# creating listening socket
+listenSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+listenSocket.bind(bindAddress)
+
+listenSocket.listen(10) # 10 connections
+print("Listening on: ", bindAddress)
+
+# create lock
+lock = threading.Lock()
+
+class Server(Thread):
+    
+    def __init__(self, sockAddress):
+        Thread.__init__(self)
+        self.sock, self.address = sockAddress
+        self.fsock = EncapFramedSock(sockAddress)
+
+    def run(self):
+        print("new thread handling connection from", self.address)
+        while 1:
+            try:
+                fileName, contents = self.fsock.receive()
+            except:
+                print("Error: File transfer was not successful!")
+                self.fsock.sendStatus(0)
+                self.fsock.close()
+                sys.exit(1)
+
+            # data not received
+            if fileName is None or contents is None:
+                print ("Client ", self.address, " has disconnected")
+                sys.exit(0)
+
+            lock.acquire()
+
+            # write the file
+            fileName = fileName.decode()
+            self.writeFile(fileName, contents)
+
+            self.fsock.sendStatus(1)
+            lock.release()
+            
+    def writeFile(self, fileName, contents):
+
+        if fileName is None:
+            raise TypeError
+        if contents is None:
+            raise TypeError
+
+        try:
+            # check if dir exists to receive files
+            if not os.path.exists(PATH):
+                os.makedirs(PATH)
+            os.chdir(PATH)
+
+            # create file to write
+            writer = open(fileName, 'w+b')
+            writer.write(contents)
+            writer.close()
+            print("File %s received from %s" % (fileName, self.address))
+        except FileNotFoundError:
+            print("File Not Found Error: File %s not found" % fileName)
+            self.fsock.Status(0)
+            sys.exit(1)
+
+if __name__ == "__main__":
+    while 1:
+        sockAddress = listenSocket.accept()
+        server = Server(sockAddress)
+        server.start()

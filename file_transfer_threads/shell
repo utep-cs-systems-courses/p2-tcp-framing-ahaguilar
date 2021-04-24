@@ -1,0 +1,6 @@
+  * *shell*                 113 Shell:run        /home/student/Projects/p2-tcp-framing-ahaguilar/file_transfer_threads/
+    client.py              2030 Python           ~/Projects/p2-tcp-framing-ahaguilar/file_transfer_threads/client.py
+    encapFramedSock.py     1866 Python           ~/Projects/p2-tcp-framing-ahaguilar/file_transfer_threads/encapFramedSock.py
+  * server.py              2584 Python           ~/Projects/p2-tcp-framing-ahaguilar/file_transfer_threads/server.py
+    *scratch*               145 Lisp Interaction 
+ %* *Messages*             3817 Messages         

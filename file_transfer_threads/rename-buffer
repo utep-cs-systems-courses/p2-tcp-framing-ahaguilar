@@ -1,0 +1,7 @@
+student@systems-vm:~/Projects/p2-tcp-framing-ahaguilar/file_transfer_threadspython3 server.py
+Listening on:  ('127.0.0.1', 50001)
+new thread handling connection from ('127.0.0.1', 46440)
+try statement 1 ********
+bad message length: b'import os, re, socket, sys\n\nsys.path.append("../lib")\nimport params\nfrom encapFramedSock import EncapFramedSock\n\nPATH = "Send/"\n\ndef client()'
+done **********
+Client  ('127.0.0.1', 46440)  has disconnected
